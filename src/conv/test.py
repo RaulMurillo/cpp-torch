@@ -16,13 +16,14 @@ in_ch = 1
 out_ch = 2
 k_s = 4
 
-# conv_cpp = Conv(in_channels=in_ch, out_channels=out_ch, kernel_size=k_s, stride=1, padding=1)
-conv_torch = torch.nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=k_s, stride=1, padding=1)
 conv_cpp = Conv(in_channels=in_ch, out_channels=out_ch, kernel_size=k_s, stride=1, padding=1)
+conv_torch = torch.nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=k_s, stride=1, padding=1)
 
 # set same internal parameters
 conv_torch.weight = conv_cpp.weight
 conv_torch.bias = conv_cpp.bias
+
+loss_fn = torch.nn.MSELoss()
 
 # Train both models
 gamma = 0.01
@@ -36,19 +37,19 @@ for i in range(5):
     y_pred = conv_torch(x)
 
     # Loss computing
-    mse_cpp = torch.mean((y_pred_cpp - y_obs) ** 2)
-    mse = torch.mean((y_pred - y_obs) ** 2)
+    mse_cpp = loss_fn(y_pred_cpp, y_obs)
+    mse = loss_fn(y_pred, y_obs)
 
     # Backward pass
     mse.backward()
     mse_cpp.backward()
-    print('C++ extension data')
+    print('** C++ extension data **')
     print('w_cpp:', conv_cpp.weight)
     print('b_cpp:', conv_cpp.bias)
     print('w_cpp.grad:', conv_cpp.weight.grad)
     print('b_cpp.grad:', conv_cpp.bias.grad)
     print()
-    print('PyTorch data')
+    print('** PyTorch data **')
     print('w:', conv_torch.weight)
     print('b:', conv_torch.bias)
     print('w.grad:', conv_torch.weight.grad)
