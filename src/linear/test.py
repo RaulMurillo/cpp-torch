@@ -6,7 +6,7 @@ N = 100
 in_ch = 8
 out_ch = 5
 
-x = torch.rand([N, 2, in_ch])*5
+x = torch.rand([N, 2, in_ch]) * 5
 y_obs = 2.3 + 5.1*torch.randn([N, 2, out_ch])
 
 linear_cpp = Linear(in_features=in_ch, out_features=out_ch)
@@ -18,10 +18,10 @@ linear_torch.bias = linear_cpp.bias
 
 loss_fn = torch.nn.MSELoss()
 
-
+ITERS = 20
 # Train both models
 gamma = 0.01
-for i in range(5):
+for i in range(ITERS):
     # Forward pass
     print(i)
     linear_cpp.zero_grad()

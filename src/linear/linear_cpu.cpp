@@ -11,11 +11,11 @@
 // #define CHECK_CONTIGUOUS(x) AT_ASSERT(x.is_contiguous(), #x " must be contiguous")
 // #define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
-
 std::vector<torch::Tensor> linear_forward(torch::Tensor input,
-                                   torch::Tensor weights,
-                                   torch::Tensor bias,
-                                   bool is_bias) {
+                                          torch::Tensor weights,
+                                          torch::Tensor bias,
+                                          bool is_bias)
+{
 
     // CHECK_INPUT(input);
     // CHECK_INPUT(weights);
@@ -32,22 +32,25 @@ std::vector<torch::Tensor> linear_forward(torch::Tensor input,
 
     int64_t nOutputFeatures = weights.size(0);
 
-    torch::Tensor output = torch::zeros(torch::IntArrayRef({batch_size, nOutputFeatures}));/*.cuda()*/;
-    
-    weights = weights.t();  // Y = X*w.T + b
+    torch::Tensor output = torch::zeros(torch::IntArrayRef({batch_size, nOutputFeatures})) /*.cuda()*/;
 
-    for(int elt = 0; elt < batch_size; elt++){
+    weights = weights.t(); // Y = X*w.T + b
+
+    for (int elt = 0; elt < batch_size; elt++)
+    {
         torch::Tensor input_n = input[elt];
-        input_n = input_n.reshape(torch::IntArrayRef({1, nInputFeatures}))/*.cuda()*/;
+        input_n = input_n.reshape(torch::IntArrayRef({1, nInputFeatures})) /*.cuda()*/;
 
-        if(is_bias){
-            output[elt].add_(bias/*.cuda()*/, 1);
+        if (is_bias)
+        {
+            output[elt].add_(bias /*.cuda()*/, 1);
         }
 
         // weights.dim: out_features,in_features
         output[elt].add_(input_n.mm(weights).reshape(torch::IntArrayRef({nOutputFeatures})), 1);
     }
-    if (dim != 2) {
+    if (dim != 2)
+    {
         std::vector<int64_t> output_size(input_size.begin(), input_size.end() - 1);
         output_size.push_back(nOutputFeatures);
         return {output.reshape(output_size)};
@@ -56,27 +59,29 @@ std::vector<torch::Tensor> linear_forward(torch::Tensor input,
 }
 
 torch::Tensor backward_gradInput(torch::Tensor input,
-                                    torch::Tensor gradOutput,
-                                    torch::Tensor weights){
+                                 torch::Tensor gradOutput,
+                                 torch::Tensor weights)
+{
 
     const auto input_sizes = input.sizes();
     input = input.dim() > 2 ?
         input.reshape({-1, input.size(input.dim() - 1)}) : input;
     gradOutput = gradOutput.dim() > 2 ?
         gradOutput.reshape({-1, gradOutput.size(gradOutput.dim() - 1)}) : gradOutput;
-    
+
     int64_t batch_size = gradOutput.size(0);
     int64_t nOutputFeatures = gradOutput.size(1);
 
     int64_t nInputFeatures = weights.size(1);
 
-    torch::Tensor gradInput = torch::zeros(torch::IntArrayRef({batch_size, nInputFeatures}))/*.cuda()*/;
+    torch::Tensor gradInput = torch::zeros(torch::IntArrayRef({batch_size, nInputFeatures})) /*.cuda()*/;
 
-    for(int elt = 0; elt < batch_size; elt++){
+    for (int elt = 0; elt < batch_size; elt++)
+    {
         torch::Tensor gradOutput_n = gradOutput[elt];
-        gradOutput_n = gradOutput_n.reshape(torch::IntArrayRef({1, nOutputFeatures}))/*.cuda()*/;
+        gradOutput_n = gradOutput_n.reshape(torch::IntArrayRef({1, nOutputFeatures})) /*.cuda()*/;
 
-        gradInput[elt] = gradOutput_n.mm(weights).reshape(torch::IntArrayRef({nInputFeatures}))/*.cuda()*/;
+        gradInput[elt] = gradOutput_n.mm(weights).reshape(torch::IntArrayRef({nInputFeatures})) /*.cuda()*/;
     }
 
     return gradInput.reshape(input_sizes);
@@ -85,7 +90,8 @@ torch::Tensor backward_gradInput(torch::Tensor input,
 std::vector<torch::Tensor> backward_gradParameters(torch::Tensor input,
                                                    torch::Tensor gradOutput,
                                                    torch::Tensor weights,
-                                                   bool is_bias){
+                                                   bool is_bias)
+{
 
     input = input.dim() > 2 ?
         input.reshape({-1, input.size(input.dim() - 1)}) : input;
@@ -97,28 +103,30 @@ std::vector<torch::Tensor> backward_gradParameters(torch::Tensor input,
     int64_t nInputFeatures = weights.size(1);
     int64_t nOutputFeatures = gradOutput.size(1);
 
-    torch::Tensor gradWeights = torch::zeros(torch::IntArrayRef({weights.size(0), weights.size(1)}))/*.cuda()*/;
-    torch::Tensor gradBias = torch::zeros(torch::IntArrayRef({nOutputFeatures}))/*.cuda()*/;
+    torch::Tensor gradWeights = torch::zeros(torch::IntArrayRef({weights.size(0), weights.size(1)})) /*.cuda()*/;
+    torch::Tensor gradBias = torch::zeros(torch::IntArrayRef({nOutputFeatures})) /*.cuda()*/;
 
-    for(int elt = 0; elt < batch_size; elt++){
+    for (int elt = 0; elt < batch_size; elt++)
+    {
         torch::Tensor input_n = input[elt];
         torch::Tensor gradOutput_n = gradOutput[elt];
         input_n = input_n.reshape(torch::IntArrayRef({1, nInputFeatures}));
 
         gradWeights.add_(gradOutput_n.reshape(torch::IntArrayRef({1, nOutputFeatures})).t().mm(input_n), 1);
 
-        if(is_bias){
+        if (is_bias)
+        {
             gradBias.add_(gradOutput_n, 1);
         }
-
     }
     return {gradWeights, gradBias};
 }
 
 std::vector<torch::Tensor> linear_backward(torch::Tensor input,
-                                    torch::Tensor gradOutput,
-                                    torch::Tensor weights,
-                                    bool is_bias) {
+                                           torch::Tensor gradOutput,
+                                           torch::Tensor weights,
+                                           bool is_bias)
+{
 
     // CHECK_INPUT(gradOutput);
     // CHECK_INPUT(weights);
@@ -131,5 +139,4 @@ std::vector<torch::Tensor> linear_backward(torch::Tensor input,
     torch::Tensor gradBias = gradParams[1];
 
     return {gradInput, gradWeights, gradBias};
-
 }
