@@ -1,5 +1,9 @@
 # cpp-torch
-Template for C++ extension writing with PyTorch
+Template sources for writing custom C++ extensions of PyTorch.
+
+Implementations are based on 
+- https://github.com/pytorch/pytorch/tree/master/aten/src/ATen/native/mkldnn
+- https://github.com/liangfu/tiny-cnn
 
 
 ## Usage instructions  
