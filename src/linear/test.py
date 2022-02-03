@@ -3,12 +3,11 @@ from linear import Linear
 
 torch.manual_seed(0)
 N = 100
-
-in_ch = 10
+in_ch = 8
 out_ch = 5
 
-x = torch.rand([N, in_ch])*5
-y_obs = 2.3 + 5.1*torch.randn([N, out_ch])
+x = torch.rand([N, 2, in_ch])*5
+y_obs = 2.3 + 5.1*torch.randn([N, 2, out_ch])
 
 linear_cpp = Linear(in_features=in_ch, out_features=out_ch)
 linear_torch = torch.nn.Linear(in_features=in_ch, out_features=out_ch)
@@ -56,3 +55,6 @@ for i in range(5):
         linear_cpp.bias -= gamma*linear_cpp.bias.grad
         linear_torch.weight -= gamma*linear_torch.weight.grad
         linear_torch.bias -= gamma*linear_torch.bias.grad
+
+assert (torch.equal(linear_cpp.weight, linear_torch.weight))
+assert (torch.isclose(linear_cpp(x), linear_torch(x)).all())

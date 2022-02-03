@@ -1,3 +1,5 @@
+import math
+
 from torch import nn
 import torch
 import torch.nn.functional as F
@@ -45,9 +47,11 @@ class Linear(nn.Module):
         self._initialize_weights()
 
     def _initialize_weights(self):
-        nn.init.kaiming_normal_(self.weight, mode='fan_out', nonlinearity='relu')
+        nn.init.kaiming_normal_(self.weight, a=math.sqrt(5))
         if self.is_bias:
-            nn.init.constant_(self.bias, 0)
+            fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            nn.init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input):
         return LinearFunction.apply(input, self.weight, self.bias, self.params)
