@@ -8,10 +8,12 @@ class ConvFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input, weights, bias, params):
 
-        dW, dH, padW, padH, is_bias = int(params[0]), int(params[1]), int(params[2]), int(params[3]), int(params[4])
+        dW, dH, padW, padH, is_bias = int(params[0]), int(
+            params[1]), int(params[2]), int(params[3]), int(params[4])
         kW, kH = weights.shape[2], weights.shape[3]
 
-        outputs = conv.forward(input, weights, bias, kW, kH, dW, dH, padW, padH, is_bias)[0]
+        outputs = conv.forward(input, weights, bias, kW,
+                               kH, dW, dH, padW, padH, is_bias)[0]
 
         variables = [input, weights, bias, params]
         ctx.save_for_backward(*variables)
@@ -24,11 +26,12 @@ class ConvFunction(torch.autograd.Function):
 
         input, weights, bias, params = ctx.saved_tensors
 
-        dW, dH, padW, padH, is_bias = int(params[0]), int(params[1]), int(params[2]), int(params[3]), int(params[4])
+        dW, dH, padW, padH, is_bias = int(params[0]), int(
+            params[1]), int(params[2]), int(params[3]), int(params[4])
         kW, kH = weights.shape[2], weights.shape[3]
 
         gradInput, gradWeight, gradBias = conv.backward(input, gradOutput, weights,
-                                                             kW, kH, dW, dH, padW, padH, is_bias)
+                                                        kW, kH, dW, dH, padW, padH, is_bias)
         return gradInput, gradWeight, gradBias, _
 
 
@@ -44,15 +47,18 @@ class Conv(nn.Module):
         self.dilation = dilation
         self.is_bias = is_bias
 
-        self.params = torch.autograd.Variable(torch.Tensor([stride, stride, padding, padding, is_bias]))
+        self.params = torch.autograd.Variable(torch.Tensor(
+            [stride, stride, padding, padding, is_bias]))
 
-        self.weight = nn.Parameter(torch.empty(out_channels, in_channels, kernel_size, kernel_size))
+        self.weight = nn.Parameter(torch.empty(
+            out_channels, in_channels, kernel_size, kernel_size))
         self.bias = nn.Parameter(torch.empty(out_channels))
 
         self._initialize_weights()
 
     def _initialize_weights(self):
-        nn.init.kaiming_normal_(self.weight, mode='fan_out', nonlinearity='relu')
+        nn.init.kaiming_normal_(
+            self.weight, mode='fan_out', nonlinearity='relu')
         if self.is_bias:
             nn.init.constant_(self.bias, 0)
 

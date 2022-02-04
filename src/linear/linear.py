@@ -27,7 +27,8 @@ class LinearFunction(torch.autograd.Function):
 
         is_bias = int(params[0])
 
-        gradInput, gradWeight, gradBias = linear.backward(input, gradOutput, weights, is_bias)
+        gradInput, gradWeight, gradBias = linear.backward(
+            input, gradOutput, weights, is_bias)
         return gradInput, gradWeight, gradBias, _
 
 

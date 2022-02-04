@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 import mse_cpu as mse
 
+
 class MSELossFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input, target, reduction):
@@ -27,8 +28,9 @@ class MSELossFunction(torch.autograd.Function):
         input, target, reduction = ctx.saved_tensors
         red = reduction.item()
         # y_pred , y = input, target
-        if red == 3: # 'none':
-            raise RuntimeError("grad can be implicitly created only for scalar outputs")
+        if red == 3:  # 'none':
+            raise RuntimeError(
+                "grad can be implicitly created only for scalar outputs")
         # if red == 1: # 'mean':
         #     gradInput = 2 * (y_pred - y) / y_pred.numel()
         # elif red == 2: # 'sum':
@@ -42,7 +44,7 @@ class MSELossFunction(torch.autograd.Function):
 class MSELoss(nn.Module):
     __constants__ = ['reduction']
 
-    def __init__(self, size_average=None, reduce=None, reduction= 'mean'):
+    def __init__(self, size_average=None, reduce=None, reduction='mean'):
         super(MSELoss, self).__init__()
 
         self.size_average = size_average
@@ -55,9 +57,11 @@ class MSELoss(nn.Module):
         elif reduction == 'none':
             red = 3
         else:
-            raise ValueError("{} is not a valid value for reduction".format(reduction))
+            raise ValueError(
+                "{} is not a valid value for reduction".format(reduction))
 
-        self.reduction = torch.autograd.Variable(torch.tensor([red], dtype=int))
+        self.reduction = torch.autograd.Variable(
+            torch.tensor([red], dtype=int))
 
     def forward(self, input, target):
         # return F.mse_loss(input, target, reduction=self.reduction)

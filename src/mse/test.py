@@ -52,4 +52,3 @@ print('sum_grad_cpu:', sum_grad_cpu)
 print('mean_grad_cpu:', mean_loss_cpu.grad)
 print('sum_grad_cpu:', mean_loss_cpu.grad)
 # print('none_grad:', none_grad)
-

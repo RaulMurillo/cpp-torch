@@ -11,16 +11,9 @@
 // #define CHECK_CONTIGUOUS(x) AT_ASSERT(x.is_contiguous(), #x " must be contiguous")
 // #define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
-void param_add(torch::Tensor& param,
-               const torch::Tensor& d_p,
-               double lr)
-{
-    param.add_(d_p, lr);
-}
-
-void sgd_function(std::vector<torch::Tensor> params,
-                  std::vector<torch::Tensor> d_p_list,
-                  std::vector<std::optional<torch::Tensor>> momentum_buffer_list,
+void sgd_function(std::vector<torch::Tensor> &params,
+                  const std::vector<torch::Tensor> &d_p_list,
+                  std::vector<std::optional<torch::Tensor>> &momentum_buffer_list,
                   double weight_decay,
                   double momentum,
                   double lr,
@@ -31,9 +24,9 @@ void sgd_function(std::vector<torch::Tensor> params,
 
     for (size_t i = 0; i < num_params; ++i)
     {
-        torch::Tensor param = params[i];
+        // torch::Tensor param = params[i];
         torch::Tensor d_p = d_p_list[i];
-        d_p.add_(param, weight_decay);
+        d_p.add_(params[i], weight_decay);
 
         if (momentum != 0)
         {

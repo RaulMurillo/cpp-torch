@@ -9,18 +9,18 @@ import sgd_cpu
 
 
 def sgd_function(params: List[Tensor],
-        d_p_list: List[Tensor],
-        momentum_buffer_list: List[Optional[Tensor]],
-        *,
-        weight_decay: float,
-        momentum: float,
-        lr: float,
-        dampening: float,
-        nesterov: bool):
+                 d_p_list: List[Tensor],
+                 momentum_buffer_list: List[Optional[Tensor]],
+                 *,
+                 weight_decay: float,
+                 momentum: float,
+                 lr: float,
+                 dampening: float,
+                 nesterov: bool):
     r"""Functional API that performs SGD algorithm computation.
 
     See :class:`~torch.optim.SGD` for details.
-    """    
+    """
     # for i, param in enumerate(params):
     #     d_p = d_p_list[i]
     #     if weight_decay != 0:
@@ -46,6 +46,7 @@ def sgd_function(params: List[Tensor],
                 dampening,
                 nesterov)
 
+
 class SGD(optim.Optimizer):
     """Implements stochastic gradient descent (optionally with momentum).
 
@@ -66,12 +67,14 @@ class SGD(optim.Optimizer):
         if momentum < 0.0:
             raise ValueError("Invalid momentum value: {}".format(momentum))
         if weight_decay < 0.0:
-            raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+            raise ValueError(
+                "Invalid weight_decay value: {}".format(weight_decay))
 
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov)
         if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
+            raise ValueError(
+                "Nesterov momentum requires a momentum and zero dampening")
 
         super(SGD, self).__init__(params, defaults)
 

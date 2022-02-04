@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from sgd import SGD as SGD_cpu
+import time
 
 torch.manual_seed(0)
 
@@ -24,7 +25,8 @@ class Net(nn.Module):
         x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))
         # If the size is a square, you can specify with a single number
         x = F.max_pool2d(F.relu(self.conv2(x)), 2)
-        x = torch.flatten(x, 1) # flatten all dimensions except the batch dimension
+        # flatten all dimensions except the batch dimension
+        x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
@@ -50,7 +52,9 @@ criterion = nn.MSELoss()
 optimizer = SGD_cpu(net.parameters(), lr=0.01, momentum=0.01, dampening=0.0, nesterov=True)
 
 # Training loop
-for i in range(5):
+ITER=5
+start = time.time()
+for i in range(ITER):
     print(i)
     optimizer.zero_grad()   # zero the gradient buffers
     output = net(input)
@@ -61,7 +65,9 @@ for i in range(5):
     print('** Model data **')
     print('w:', net.conv1.weight)
     print('b:', net.conv1.bias)
-    # print('w.grad:', net.weight.grad)
-    # print('b.grad:', net.bias.grad)
     print('** Model prediction **')
     print(output)
+
+stop = time.time()
+# print(stop - start)
+# print((stop - start)/ITER)
