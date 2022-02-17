@@ -1,3 +1,4 @@
+import math
 from torch import nn
 import torch
 import torch.nn.functional as F
@@ -36,7 +37,7 @@ class ConvFunction(torch.autograd.Function):
 
 
 class Conv(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, padding=1, stride=1, dilation=1, is_bias=True):
+    def __init__(self, in_channels, out_channels, kernel_size=3, padding=0, stride=1, dilation=1, is_bias=True):
         super(Conv, self).__init__()
 
         self.in_channels = in_channels
@@ -57,10 +58,11 @@ class Conv(nn.Module):
         self._initialize_weights()
 
     def _initialize_weights(self):
-        nn.init.kaiming_normal_(
-            self.weight, mode='fan_out', nonlinearity='relu')
+        nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         if self.is_bias:
-            nn.init.constant_(self.bias, 0)
+            fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            nn.init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input):
         return ConvFunction.apply(input, self.weight, self.bias, self.params)

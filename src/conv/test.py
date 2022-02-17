@@ -1,5 +1,6 @@
 import torch
 from conv import Conv
+import time
 
 torch.manual_seed(0)
 N = 100
@@ -29,9 +30,10 @@ loss_fn = torch.nn.MSELoss()
 ITERS = 20
 # Train both models
 gamma = 0.01
+start = time.time()
 for i in range(ITERS):
     # Forward pass
-    print(i)
+    # print(i)
     conv_cpp.zero_grad()
     conv_torch.zero_grad()
     # use new weight to calculate loss
@@ -45,17 +47,17 @@ for i in range(ITERS):
     # Backward pass
     mse_cpp.backward()
     mse.backward()
-    print('** C++ extension data **')
-    print('w_cpp:', conv_cpp.weight)
-    print('b_cpp:', conv_cpp.bias)
-    print('w_cpp.grad:', conv_cpp.weight.grad)
-    print('b_cpp.grad:', conv_cpp.bias.grad)
-    print()
-    print('** PyTorch data **')
-    print('w:', conv_torch.weight)
-    print('b:', conv_torch.bias)
-    print('w.grad:', conv_torch.weight.grad)
-    print('b.grad:', conv_torch.bias.grad)
+    # print('** C++ extension data **')
+    # print('w_cpp:', conv_cpp.weight)
+    # print('b_cpp:', conv_cpp.bias)
+    # print('w_cpp.grad:', conv_cpp.weight.grad)
+    # print('b_cpp.grad:', conv_cpp.bias.grad)
+    # print()
+    # print('** PyTorch data **')
+    # print('w:', conv_torch.weight)
+    # print('b:', conv_torch.bias)
+    # print('w.grad:', conv_torch.weight.grad)
+    # print('b.grad:', conv_torch.bias.grad)
 
     # gradient descent, don't track
     with torch.no_grad():
@@ -63,6 +65,10 @@ for i in range(ITERS):
         conv_cpp.bias -= gamma*conv_cpp.bias.grad
         conv_torch.weight -= gamma*conv_torch.weight.grad
         conv_torch.bias -= gamma*conv_torch.bias.grad
+
+stop = time.time()
+print(stop-start)
+print((stop-start)/ITERS)
 
 assert (torch.equal(conv_cpp.weight, conv_torch.weight))
 assert (torch.isclose(conv_cpp(x), conv_torch(x), atol=1e-6, rtol=1e-5).all())
