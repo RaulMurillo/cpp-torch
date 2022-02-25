@@ -35,7 +35,7 @@ print('none_loss_cpu:', none_loss_cpu)
 
 mean_grad = mean_loss.backward()
 sum_grad = sum_loss.backward()
-none_grad = none_loss.backward()
+# none_grad = none_loss.backward()
 
 print('mean_grad:', mean_grad)
 print('sum_grad:', sum_grad)

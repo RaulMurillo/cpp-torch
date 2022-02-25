@@ -14,7 +14,7 @@ N = 100
 in_ch = 8
 out_ch = 5
 
-LOSS_EXT = True
+LOSS_EXT = False
 
 x = torch.rand([N, 2, in_ch]) * 5
 y_obs = 2.3 + 5.1*torch.randn([N, 2, out_ch])
